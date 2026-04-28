@@ -1,0 +1,38 @@
+{
+  "name": "HeroWallet",
+  "displayName": "HERO Wallet",
+  "bundleId": "io.herobase.wallet",
+  "version": "0.1.0",
+  "buildNumber": "1",
+  "scheme": "hero-wallet",
+  "orientation": "portrait",
+  "icon": "./assets/images/icon.png",
+  "splash": {
+    "image": "./assets/images/splash.png",
+    "resizeMode": "contain",
+    "backgroundColor": "#0a0a0a"
+  },
+  "ios": {
+    "bundleIdentifier": "io.herobase.wallet",
+    "supportsTablet": true,
+    "infoPlist": {
+      "NSFaceIDUsageDescription": "HERO Wallet uses Face ID for secure authentication",
+      "NSCameraUsageDescription": "HERO Wallet uses the camera for QR code scanning"
+    }
+  },
+  "android": {
+    "package": "io.herobase.wallet",
+    "adaptiveIcon": {
+      "foregroundImage": "./assets/images/adaptive-icon.png",
+      "backgroundColor": "#0a0a0a"
+    },
+    "permissions": [
+      "INTERNET",
+      "USE_BIOMETRIC",
+      "USE_FINGERPRINT",
+      "CAMERA",
+      "VIBRATE",
+      "RECEIVE_BOOT_COMPLETED"
+    ]
+  }
+}
