@@ -1,0 +1,86 @@
+import React from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView } from 'react-native';
+import { useWallet } from '../contexts/WalletContext';
+
+export default function SettingsScreen() {
+  const { address, lockWallet } = useWallet();
+
+  return (
+    <ScrollView style={styles.container}>
+      <Text style={styles.title}>Settings</Text>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Wallet</Text>
+        <View style={styles.row}>
+          <Text style={styles.rowLabel}>Address</Text>
+          <Text style={styles.rowValue}>{address ? `${address.slice(0, 8)}...${address.slice(-6)}` : 'Not set'}</Text>
+        </View>
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Security</Text>
+        <TouchableOpacity style={styles.menuItem} onPress={lockWallet}>
+          <Text style={styles.menuText}>Lock Wallet</Text>
+          <Text style={styles.menuArrow}>→</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.menuItem} onPress={() => Alert.alert('Backup', 'Export encrypted backup')}>
+          <Text style={styles.menuText}>Backup Wallet</Text>
+          <Text style={styles.menuArrow}>→</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.menuItem} onPress={() => Alert.alert('Approvals', 'Token approval audit')}>
+          <Text style={styles.menuText}>Token Approvals</Text>
+          <Text style={styles.menuArrow}>→</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Privacy (Railgun)</Text>
+        <TouchableOpacity style={styles.menuItem} onPress={() => Alert.alert('Shield', 'Shield tokens for privacy')}>
+          <Text style={styles.menuText}>Shield Tokens</Text>
+          <Text style={styles.menuArrow}>→</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.menuItem} onPress={() => Alert.alert('Unshield', 'Unshield tokens')}>
+          <Text style={styles.menuText}>Unshield Tokens</Text>
+          <Text style={styles.menuArrow}>→</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Network</Text>
+        <View style={styles.row}>
+          <Text style={styles.rowLabel}>RPC Failover</Text>
+          <Text style={[styles.rowValue, { color: '#00d4aa' }]}>Active (6 RPCs)</Text>
+        </View>
+        <View style={styles.row}>
+          <Text style={styles.rowLabel}>Wallet API</Text>
+          <Text style={[styles.rowValue, { color: '#00d4aa' }]}>Connected</Text>
+        </View>
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>About</Text>
+        <View style={styles.row}>
+          <Text style={styles.rowLabel}>Version</Text>
+          <Text style={styles.rowValue}>1.0.0</Text>
+        </View>
+        <View style={styles.row}>
+          <Text style={styles.rowLabel}>Built by</Text>
+          <Text style={styles.rowValue}>VetsInCrypto</Text>
+        </View>
+      </View>
+    </ScrollView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: '#0a0e1a', padding: 20 },
+  title: { color: '#fff', fontSize: 24, fontWeight: 'bold', marginBottom: 24 },
+  section: { marginBottom: 24 },
+  sectionTitle: { color: '#00d4aa', fontSize: 14, fontWeight: '600', marginBottom: 12, textTransform: 'uppercase' },
+  row: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#1a1f2e' },
+  rowLabel: { color: '#888', fontSize: 15 },
+  rowValue: { color: '#fff', fontSize: 15 },
+  menuItem: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: '#1a1f2e' },
+  menuText: { color: '#fff', fontSize: 16 },
+  menuArrow: { color: '#888', fontSize: 18 },
+});

@@ -1,0 +1,107 @@
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { useWallet } from '../contexts/WalletContext';
+import { CHAIN_CONFIG } from '../config/tokens';
+
+export default function SwapScreen() {
+  const { activeChain } = useWallet();
+  const [fromToken, setFromToken] = useState('ETH');
+  const [toToken, setToToken] = useState('HERO');
+  const [amount, setAmount] = useState('');
+  const [quote, setQuote] = useState<string | null>(null);
+
+  const config = CHAIN_CONFIG[activeChain];
+
+  async function getQuote() {
+    if (!amount) return;
+    // In production, this calls the wallet-api DEX aggregator
+    Alert.alert('Quote', `Swap ${amount} ${fromToken} → ~${(parseFloat(amount) * 1000).toFixed(2)} ${toToken}\n\nRoute: Aerodrome (best price)`);
+  }
+
+  async function executeSwap() {
+    Alert.alert('Swap', 'Swap execution via wallet-api DEX aggregator');
+  }
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Swap</Text>
+      <Text style={styles.chainLabel}>Network: {config.name}</Text>
+
+      {/* From Token */}
+      <View style={styles.swapBox}>
+        <Text style={styles.label}>From</Text>
+        <View style={styles.tokenRow}>
+          <TouchableOpacity style={styles.tokenSelector}>
+            <Text style={styles.tokenText}>{fromToken}</Text>
+          </TouchableOpacity>
+          <TextInput
+            style={styles.amountInput}
+            placeholder="0.0"
+            placeholderTextColor="#555"
+            value={amount}
+            onChangeText={setAmount}
+            keyboardType="decimal-pad"
+          />
+        </View>
+      </View>
+
+      {/* Swap Arrow */}
+      <TouchableOpacity style={styles.swapArrow} onPress={() => {
+        const temp = fromToken;
+        setFromToken(toToken);
+        setToToken(temp);
+      }}>
+        <Text style={styles.arrowText}>⇅</Text>
+      </TouchableOpacity>
+
+      {/* To Token */}
+      <View style={styles.swapBox}>
+        <Text style={styles.label}>To</Text>
+        <View style={styles.tokenRow}>
+          <TouchableOpacity style={styles.tokenSelector}>
+            <Text style={styles.tokenText}>{toToken}</Text>
+          </TouchableOpacity>
+          <Text style={styles.quoteText}>{quote || '—'}</Text>
+        </View>
+      </View>
+
+      {/* Route Info */}
+      <View style={styles.routeInfo}>
+        <Text style={styles.routeLabel}>Best Route</Text>
+        <Text style={styles.routeValue}>
+          {activeChain === 'base' ? 'Aerodrome → Direct' : 'PulseX → Direct'}
+        </Text>
+      </View>
+
+      <TouchableOpacity style={styles.quoteBtn} onPress={getQuote}>
+        <Text style={styles.quoteBtnText}>Get Quote</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.swapBtn} onPress={executeSwap}>
+        <Text style={styles.swapBtnText}>Swap</Text>
+      </TouchableOpacity>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: '#0a0e1a', padding: 20 },
+  title: { color: '#fff', fontSize: 24, fontWeight: 'bold', marginBottom: 4 },
+  chainLabel: { color: '#00d4aa', fontSize: 14, marginBottom: 24 },
+  swapBox: { backgroundColor: '#1a1f2e', borderRadius: 16, padding: 16, marginBottom: 8 },
+  label: { color: '#888', fontSize: 12, marginBottom: 8 },
+  tokenRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  tokenSelector: { backgroundColor: '#2a2f3e', borderRadius: 8, paddingHorizontal: 16, paddingVertical: 10 },
+  tokenText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  amountInput: { color: '#fff', fontSize: 24, textAlign: 'right', flex: 1, marginLeft: 16 },
+  quoteText: { color: '#888', fontSize: 24, textAlign: 'right', flex: 1 },
+  swapArrow: { alignSelf: 'center', backgroundColor: '#1a1f2e', width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', marginVertical: 4 },
+  arrowText: { color: '#00d4aa', fontSize: 20 },
+  routeInfo: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#1a1f2e', marginBottom: 20 },
+  routeLabel: { color: '#888', fontSize: 14 },
+  routeValue: { color: '#00d4aa', fontSize: 14 },
+  quoteBtn: { backgroundColor: '#2a2f3e', borderRadius: 12, padding: 16, alignItems: 'center', marginBottom: 12 },
+  quoteBtnText: { color: '#00d4aa', fontSize: 16, fontWeight: '600' },
+  swapBtn: { backgroundColor: '#00d4aa', borderRadius: 12, padding: 18, alignItems: 'center' },
+  swapBtnText: { color: '#0a0e1a', fontSize: 18, fontWeight: 'bold' },
+});

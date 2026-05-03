@@ -1,0 +1,37 @@
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { StatusBar } from 'expo-status-bar';
+import { WalletProvider } from './src/contexts/WalletContext';
+import WalletScreen from './src/screens/WalletScreen';
+import SendScreen from './src/screens/SendScreen';
+import ReceiveScreen from './src/screens/ReceiveScreen';
+import SwapScreen from './src/screens/SwapScreen';
+import SettingsScreen from './src/screens/SettingsScreen';
+
+const Tab = createBottomTabNavigator();
+
+export default function App() {
+  return (
+    <WalletProvider>
+      <NavigationContainer>
+        <StatusBar style="light" />
+        <Tab.Navigator
+          screenOptions={{
+            headerStyle: { backgroundColor: '#0a0e1a' },
+            headerTintColor: '#fff',
+            tabBarStyle: { backgroundColor: '#0a0e1a', borderTopColor: '#1a1f2e' },
+            tabBarActiveTintColor: '#00d4aa',
+            tabBarInactiveTintColor: '#666',
+          }}
+        >
+          <Tab.Screen name="Wallet" component={WalletScreen} options={{ tabBarLabel: 'Wallet' }} />
+          <Tab.Screen name="Send" component={SendScreen} options={{ tabBarLabel: 'Send' }} />
+          <Tab.Screen name="Receive" component={ReceiveScreen} options={{ tabBarLabel: 'Receive' }} />
+          <Tab.Screen name="Swap" component={SwapScreen} options={{ tabBarLabel: 'Swap' }} />
+          <Tab.Screen name="Settings" component={SettingsScreen} options={{ tabBarLabel: 'Settings' }} />
+        </Tab.Navigator>
+      </NavigationContainer>
+    </WalletProvider>
+  );
+}

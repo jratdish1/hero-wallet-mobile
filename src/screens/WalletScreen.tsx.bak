@@ -1,0 +1,150 @@
+import React, { useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
+import { useWallet } from '../contexts/WalletContext';
+import { CHAIN_CONFIG } from '../config/tokens';
+
+export default function WalletScreen() {
+  const { address, balances, activeChain, switchChain, refreshBalances, isLocked } = useWallet();
+  const [refreshing, setRefreshing] = React.useState(false);
+
+  useEffect(() => {
+    if (!isLocked && address) refreshBalances();
+  }, [isLocked, activeChain]);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await refreshBalances();
+    setRefreshing(false);
+  };
+
+  if (!address) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.title}>Welcome to HERO Wallet</Text>
+        <Text style={styles.subtitle}>Create or import a wallet to get started</Text>
+      </View>
+    );
+  }
+
+  const config = CHAIN_CONFIG[activeChain];
+  const nativeBalance = balances[`${activeChain}_native`] || '0';
+
+  return (
+    <ScrollView 
+      style={styles.container}
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#00d4aa" />}
+    >
+      {/* Chain Selector */}
+      <View style={styles.chainSelector}>
+        <TouchableOpacity
+          style={[styles.chainBtn, activeChain === 'base' && styles.chainBtnActive]}
+          onPress={() => switchChain('base')}
+        >
+          <Text style={[styles.chainText, activeChain === 'base' && styles.chainTextActive]}>BASE</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.chainBtn, activeChain === 'pulsechain' && styles.chainBtnActive]}
+          onPress={() => switchChain('pulsechain')}
+        >
+          <Text style={[styles.chainText, activeChain === 'pulsechain' && styles.chainTextActive]}>PulseChain</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Balance Card */}
+      <View style={styles.balanceCard}>
+        <Text style={styles.balanceLabel}>Total Balance ({config.name})</Text>
+        <Text style={styles.balanceAmount}>
+          {parseFloat(nativeBalance).toFixed(6)} {config.nativeSymbol}
+        </Text>
+        <Text style={styles.addressText}>
+          {address.slice(0, 8)}...{address.slice(-6)}
+        </Text>
+      </View>
+
+      {/* Token List */}
+      <View style={styles.tokenSection}>
+        <Text style={styles.sectionTitle}>Tokens</Text>
+        <View style={styles.tokenRow}>
+          <View style={styles.tokenIcon}>
+            <Text style={styles.tokenIconText}>{config.nativeSymbol[0]}</Text>
+          </View>
+          <View style={styles.tokenInfo}>
+            <Text style={styles.tokenName}>{config.nativeSymbol}</Text>
+            <Text style={styles.tokenChain}>{config.name}</Text>
+          </View>
+          <Text style={styles.tokenBalance}>{parseFloat(nativeBalance).toFixed(4)}</Text>
+        </View>
+        <View style={styles.tokenRow}>
+          <View style={[styles.tokenIcon, { backgroundColor: '#ff6b35' }]}>
+            <Text style={styles.tokenIconText}>H</Text>
+          </View>
+          <View style={styles.tokenInfo}>
+            <Text style={styles.tokenName}>HERO</Text>
+            <Text style={styles.tokenChain}>{config.name}</Text>
+          </View>
+          <Text style={styles.tokenBalance}>{balances[`${activeChain}_hero`] || '0'}</Text>
+        </View>
+        {activeChain === 'pulsechain' && (
+          <View style={styles.tokenRow}>
+            <View style={[styles.tokenIcon, { backgroundColor: '#4a90d9' }]}>
+              <Text style={styles.tokenIconText}>V</Text>
+            </View>
+            <View style={styles.tokenInfo}>
+              <Text style={styles.tokenName}>VETS</Text>
+              <Text style={styles.tokenChain}>PulseChain</Text>
+            </View>
+            <Text style={styles.tokenBalance}>{balances[`pulsechain_vets`] || '0'}</Text>
+          </View>
+        )}
+      </View>
+
+      {/* Quick Actions */}
+      <View style={styles.actionsRow}>
+        <TouchableOpacity style={styles.actionBtn}>
+          <Text style={styles.actionIcon}>↑</Text>
+          <Text style={styles.actionText}>Send</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.actionBtn}>
+          <Text style={styles.actionIcon}>↓</Text>
+          <Text style={styles.actionText}>Receive</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.actionBtn}>
+          <Text style={styles.actionIcon}>⇄</Text>
+          <Text style={styles.actionText}>Swap</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.actionBtn}>
+          <Text style={styles.actionIcon}>🔒</Text>
+          <Text style={styles.actionText}>Privacy</Text>
+        </TouchableOpacity>
+      </View>
+    </ScrollView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: '#0a0e1a' },
+  title: { color: '#fff', fontSize: 24, fontWeight: 'bold', textAlign: 'center', marginTop: 100 },
+  subtitle: { color: '#888', fontSize: 16, textAlign: 'center', marginTop: 10 },
+  chainSelector: { flexDirection: 'row', padding: 16, gap: 12 },
+  chainBtn: { flex: 1, paddingVertical: 10, borderRadius: 8, backgroundColor: '#1a1f2e', alignItems: 'center' },
+  chainBtnActive: { backgroundColor: '#00d4aa' },
+  chainText: { color: '#888', fontWeight: '600' },
+  chainTextActive: { color: '#0a0e1a' },
+  balanceCard: { margin: 16, padding: 24, backgroundColor: '#1a1f2e', borderRadius: 16 },
+  balanceLabel: { color: '#888', fontSize: 14 },
+  balanceAmount: { color: '#fff', fontSize: 32, fontWeight: 'bold', marginTop: 8 },
+  addressText: { color: '#666', fontSize: 12, marginTop: 8 },
+  tokenSection: { padding: 16 },
+  sectionTitle: { color: '#fff', fontSize: 18, fontWeight: '600', marginBottom: 12 },
+  tokenRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#1a1f2e' },
+  tokenIcon: { width: 40, height: 40, borderRadius: 20, backgroundColor: '#00d4aa', alignItems: 'center', justifyContent: 'center' },
+  tokenIconText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
+  tokenInfo: { flex: 1, marginLeft: 12 },
+  tokenName: { color: '#fff', fontSize: 16, fontWeight: '500' },
+  tokenChain: { color: '#666', fontSize: 12 },
+  tokenBalance: { color: '#fff', fontSize: 16 },
+  actionsRow: { flexDirection: 'row', padding: 16, gap: 12 },
+  actionBtn: { flex: 1, alignItems: 'center', padding: 16, backgroundColor: '#1a1f2e', borderRadius: 12 },
+  actionIcon: { fontSize: 24 },
+  actionText: { color: '#fff', fontSize: 12, marginTop: 4 },
+});
